@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '中文橫轉直',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -29,7 +29,9 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: '中文橫轉直'),
+      home: Scaffold(
+        body: MyHomePage(title: '中文橫轉直'),
+      )
     );
   }
 }
@@ -60,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _width = _initWidth;
   int _height = _initHeight;
   TextEditingController _outputTextController = TextEditingController(text: '');
+  TextEditingController _inputTextController = TextEditingController(text: '');
   TextEditingController _widthTextController =
       TextEditingController(text: _initWidth.toString());
   TextEditingController _heightTextController =
@@ -154,26 +157,55 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-              child: Scrollbar(
-                  child: TextField(
+              child: Row(children: [
+                RaisedButton(
+                  child: Text('剪貼簿貼上'),
+                  onPressed: () async {
+                    ClipboardData data = await Clipboard.getData('text/plain');
+                    setState(() {
+                      _inputTextController.text = data.text;
+                      _inputText = data.text;
+                    });
+                  },
+                ),
+                SizedBox(child: Container(), width: 10),
+                RaisedButton(
+                  child: Text('清除輸入文字'),
+                  onPressed: () async {
+                    setState(() {
+                      _inputTextController.text = '';
+                      _inputText = '';
+                    });
+                  },
+                ),
+                SizedBox(child: Container(), width: 10),
+              ]),
+              width: (MediaQuery.of(context).size.width - 84),
+            ),
+            SizedBox(
+              //child: Scrollbar(
+              child:
+              TextField(
                 decoration: InputDecoration(
                   border: UnderlineInputBorder(),
                   filled: true,
                   //icon: Icon(Icons.live_help),
-                  //hintText: textRes.HINT_QUESTION,
+                  hintText: '輸入或貼上橫寫文字（可以入半形文字）',
                   //labelText: textRes.LABEL_QUESTION,
                 ),
                 expands: true,
                 minLines: null,
                 maxLines: null,
+                controller: _inputTextController,
                 onChanged: (value) {
                   setState(() {
                     this._inputText = value;
                   });
                 },
-                scrollController: ScrollController(),
-              )),
-              height: (MediaQuery.of(context).size.height - 106) / 2,
+                //  scrollController: ScrollController(),
+              ),
+              //),
+              height: (MediaQuery.of(context).size.height - 134) / 2,
             ),
             SizedBox(
               child: Row(children: [
@@ -193,6 +225,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                       }, // Only numbers can be entered
                     )),
+                SizedBox(child: Container(), width: 10),
                 Expanded(
                     flex: 2,
                     child: TextField(
@@ -209,11 +242,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                       }, // Only numbers can be entered
                     )),
-                RaisedButton(onPressed: _convert, child: Text('轉')),
+                SizedBox(child: Container(), width: 10),
+                RaisedButton(onPressed: _convert, child: Text('橫轉直')),
+                SizedBox(child: Container(), width: 10),
                 RaisedButton(
                   child: Text('抄去剪貼簿'),
                   onPressed: () async {
-                    Clipboard.setData(ClipboardData(text: _outputTextController.text)).then((reult) {
+                    Clipboard.setData(
+                            ClipboardData(text: _outputTextController.text))
+                        .then((reult) {
                       final snackBar = SnackBar(
                         content: Text('抄咗'),
                         action: SnackBarAction(
@@ -235,7 +272,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   border: UnderlineInputBorder(),
                   filled: true,
                   //icon: Icon(Icons.live_help),
-                  //hintText: textRes.HINT_QUESTION,
+                  hintText: '直寫預覽',
                   //labelText: textRes.LABEL_QUESTION,
                 ),
                 expands: true,
@@ -244,7 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 controller: _outputTextController,
                 scrollController: ScrollController(),
               )),
-              height: (MediaQuery.of(context).size.height - 106) / 2,
+              height: (MediaQuery.of(context).size.height - 134) / 2,
             ),
           ],
         ),
